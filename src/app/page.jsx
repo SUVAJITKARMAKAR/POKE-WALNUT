@@ -57,6 +57,18 @@ export default function RefactoredPokedex() {
     fetchPokemonList();
   };
 
+  const handlePrevPage = () => {
+    if (offset > 0) {
+      setOffset((prevOffset) => prevOffset - limit);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (offset + limit < totalPokemon) {
+      setOffset((prevOffset) => prevOffset + limit);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-400 via-teal-500 to-blue-500 p-8">
       <div className="max-w-7xl mx-auto bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden border border-white border-opacity-30">
@@ -100,6 +112,23 @@ export default function RefactoredPokedex() {
               ))}
             </div>
           )}
+
+          <div className="flex justify-between mt-10">
+            <button
+              onClick={handlePrevPage}
+              disabled={offset === 0}
+              className="flex items-center px-6 py-3 rounded-full bg-teal-500 text-white hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={offset + limit >= totalPokemon}
+              className="flex items-center px-6 py-3 rounded-full bg-teal-500 text-white hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
