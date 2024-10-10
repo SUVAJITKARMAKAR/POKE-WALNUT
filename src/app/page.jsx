@@ -1,10 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function RefactoredPokedex() {
   const [pokemonList, setPokemonList] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(12);
+  const [totalPokemon, setTotalPokemon] = useState(0);
+
+  const fetchPokemonList = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
+      if (search) {
+        url = `https://pokeapi.co/api/v2/pokemon/${search.toLowerCase()}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Error fetching Pokémon list");
+      const data = await response.json();
+
+      let pokemonData;
+      if (search) {
+        pokemonData = [data];
+        setTotalPokemon(1);
+      } else {
+        setTotalPokemon(data.count);
+        const detailedPokemonPromises = data.results.map((pokemon) =>
+          fetch(pokemon.url).then((res) => res.json())
+        );
+        pokemonData = await Promise.all(detailedPokemonPromises);
+      }
+      setPokemonList(pokemonData);
+    } catch (err) {
+      setError("Error fetching Pokémon data");
+      setPokemonList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPokemonList();
+  }, [offset, limit]);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -12,7 +53,8 @@ export default function RefactoredPokedex() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Fetch logic will be added later
+    setOffset(0);
+    fetchPokemonList();
   };
 
   return (
@@ -42,6 +84,22 @@ export default function RefactoredPokedex() {
               Search
             </button>
           </form>
+
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-green-300"></div>
+            </div>
+          ) : error ? (
+            <p className="text-red-500 text-center">{error}</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {pokemonList.map((pokemon) => (
+                <div key={pokemon.id} className="bg-white p-4 rounded-lg shadow">
+                  <h2>{pokemon.name}</h2>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
