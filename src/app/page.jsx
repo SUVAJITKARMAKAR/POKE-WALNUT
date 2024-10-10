@@ -12,6 +12,7 @@ export default function RefactoredPokedex() {
   const [totalPokemon, setTotalPokemon] = useState(0);
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [selectedType, setSelectedType] = useState("");
 
   const fetchPokemonList = async () => {
     setLoading(true);
@@ -36,6 +37,13 @@ export default function RefactoredPokedex() {
         );
         pokemonData = await Promise.all(detailedPokemonPromises);
       }
+
+      if (selectedType) {
+        pokemonData = pokemonData.filter((pokemon) =>
+          pokemon.types.some((type) => type.type.name === selectedType)
+        );
+      }
+
       setPokemonList(pokemonData);
     } catch (err) {
       setError("Error fetching Pokémon data");
@@ -47,7 +55,7 @@ export default function RefactoredPokedex() {
 
   useEffect(() => {
     fetchPokemonList();
-  }, [offset, limit]);
+  }, [offset, limit, selectedType]);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -93,6 +101,10 @@ export default function RefactoredPokedex() {
     }
   };
 
+  const handleTypeFilter = (e) => {
+    setSelectedType(e.target.value);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-400 via-teal-500 to-blue-500 p-8">
       <div className="max-w-7xl mx-auto bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden border border-white border-opacity-30">
@@ -134,6 +146,15 @@ export default function RefactoredPokedex() {
             >
               Sort by Experience
             </button>
+            <select
+              onChange={handleTypeFilter}
+              className="px-6 py-3 rounded-full bg-teal-500 text-white hover:bg-teal-600 transition-colors shadow-lg"
+            >
+              <option value="">All Types</option>
+              <option value="grass">Grass</option>
+              <option value="fire">Fire</option>
+              <option value="water">Water</option>
+            </select>
           </div>
 
           {loading ? (
