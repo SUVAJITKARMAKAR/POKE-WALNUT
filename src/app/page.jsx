@@ -46,7 +46,7 @@ export default function RefactoredPokedex() {
 
       setPokemonList(pokemonData);
     } catch (err) {
-      setError("Error fetching Pokémon data");
+      setError("Error fetching Pokémon")
       setPokemonList([]);
     } finally {
       setLoading(false);
@@ -167,8 +167,15 @@ export default function RefactoredPokedex() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredAndSortedPokemon().map((pokemon) => (
                 <div key={pokemon.id} className="bg-white p-4 rounded-lg shadow">
-                  <h2>{pokemon.name}</h2>
+                  <img
+                    src={pokemon.sprites.front_default}
+                    alt={pokemon.name}
+                    className="w-full h-auto mb-2"
+                  />
+                  <h2 className="font-bold">{pokemon.name}</h2>
                   <p>Base Exp: {pokemon.base_experience}</p>
+                  <p>Height: {pokemon.height}</p>
+                  <p>Weight: {pokemon.weight}</p>
                 </div>
               ))}
             </div>
@@ -195,3 +202,4 @@ export default function RefactoredPokedex() {
     </div>
   );
 }
+
