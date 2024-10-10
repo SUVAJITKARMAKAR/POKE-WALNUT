@@ -10,6 +10,8 @@ export default function RefactoredPokedex() {
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(12);
   const [totalPokemon, setTotalPokemon] = useState(0);
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const fetchPokemonList = async () => {
     setLoading(true);
@@ -57,6 +59,28 @@ export default function RefactoredPokedex() {
     fetchPokemonList();
   };
 
+  const handleSort = (field) => {
+    setSortField(field);
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  const filteredAndSortedPokemon = () => {
+    let sortedList = [...pokemonList];
+    sortedList.sort((a, b) => {
+      if (sortField === "name") {
+        return sortOrder === "asc"
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (sortField === "base_experience") {
+        return sortOrder === "asc"
+          ? a.base_experience - b.base_experience
+          : b.base_experience - a.base_experience;
+      }
+      return 0;
+    });
+    return sortedList;
+  };
+
   const handlePrevPage = () => {
     if (offset > 0) {
       setOffset((prevOffset) => prevOffset - limit);
@@ -97,6 +121,21 @@ export default function RefactoredPokedex() {
             </button>
           </form>
 
+          <div className="flex justify-center gap-4 mb-8">
+            <button
+              onClick={() => handleSort("name")}
+              className="px-6 py-3 rounded-full bg-teal-500 text-white hover:bg-teal-600 transition-colors shadow-lg"
+            >
+              Sort by Name
+            </button>
+            <button
+              onClick={() => handleSort("base_experience")}
+              className="px-6 py-3 rounded-full bg-teal-500 text-white hover:bg-teal-600 transition-colors shadow-lg"
+            >
+              Sort by Experience
+            </button>
+          </div>
+
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-green-300"></div>
@@ -105,9 +144,10 @@ export default function RefactoredPokedex() {
             <p className="text-red-500 text-center">{error}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {pokemonList.map((pokemon) => (
+              {filteredAndSortedPokemon().map((pokemon) => (
                 <div key={pokemon.id} className="bg-white p-4 rounded-lg shadow">
                   <h2>{pokemon.name}</h2>
+                  <p>Base Exp: {pokemon.base_experience}</p>
                 </div>
               ))}
             </div>
